@@ -15,6 +15,7 @@ import subprocess
 
 # Setup some defaults
 jsnap_cmd = "/usr/jawa/bin/jsnap"
+cfg_folder = "/usr/local/lib/jsnap"
 jsnap_args = "<none>"
 operation = "0"
 
@@ -30,7 +31,7 @@ def get_operation():
 
 	op = "0"
 
-	print "Which operation do you want to run?"
+	print "\nWhich operation do you want to run?"
 	print "1. snap: Snapshot data and save as collection 'name'"
 	print "2. check: Check results of two snapshot collections 'name1' and 'name2'"
 	print "3. snapcheck: Take a single snapshot as collection 'name' and checks results"
@@ -59,30 +60,18 @@ def get_snap_args():
 	password = "<none>"
 
 	# Get real data from the user
-	while ( pre_post_num != 1 ) and ( pre_post_num != 2 ):
-		pre_post_num = int( raw_input("Is this a [1] pre-event or [2] post-event snapshot?\n[1|2]: "))
-
-	while ( device == "<none>" ) or ( device == "" ):
-		device = raw_input("Device to snapshot: ")
-
-	while (ip_name == "<none>" ) or ( ip_name == "" ):
-		ip_name = raw_input("IP or DNS name of device: " )
-
-	while (cfg_file == "<none>" ) or ( cfg_file == "" ):
-		cfg_file = raw_input("SNAP config file to use: " )
+	pre_post_num = get_pre_post()
+	device = get_device()
+	ip_name = get_ip_name()
+	cfg_file = get_config_file( )
+	username = get_username()
+	password = get_password()
 
 	#while (location == "<none>" ) or ( location == "" ):
 		#location = raw_input("Destination for results: " )
 
-	while (username == "<none>" ) or ( username == "" ):
-		username = raw_input("Username: " )
-
-	while (password == "<none>" ) or ( password == "" ):
-		password = getpass.getpass("Password: " )
-
 	# Now lets concatenate the args into one string
 	args = str( "--snap " + device + "-" + pre_post[ pre_post_num ] + " -l " + username + " -p " + password + " -t " + ip_name + " " + cfg_file )
-
 	return args
 
 def get_check_args():
@@ -92,12 +81,142 @@ def get_check_args():
 	the argument string.
 	"""
 
+	device = "<none>"
+	ip_name = "<none>"
+	cfg_file = "<none>"
+
+	device = get_device()
+	ip_name = get_ip_name()
+	cfg_file = get_config_file()
+
+	args = str( " --check " + device + "-pre," + device + "-post " + " -t " + ip_name + " " + cfg_file )
+	return args
+
 def get_snapcheck_args():
 	"""
 	Interactively grab some real data from the user and build the
 	argument string we will need to run a jsnap snapcheck.  Return
 	the argument string.
 	"""
+
+	args = "<none>"
+	device = "<none>"
+	ip_name = "<none>"
+	cfg_file = "<none>"
+	location = "<none>"
+	username = "<none>"
+	password = "<none>"
+
+	device = get_device()
+	ip_name = get_ip_name()
+	cfg_file = get_config_file()
+	username = get_username()
+	password = get_password()
+
+	#while (location == "<none>" ) or ( location == "" ):
+		#location = raw_input("Destination for results: " )
+
+	# Now lets concatenate the args into one string
+	args = str( "--snapcheck " + device + " -l " + username + " -p " + password + " -t " + ip_name + " " + cfg_file )
+	return args
+
+def get_pre_post():
+	"""
+	Ask user if this is a pre-event snapshot or a post-event snapshot
+	"""
+
+	x = 0
+
+	while ( x != 1 ) and ( x != 2 ):
+		x = int( raw_input("\nIs this a [1] pre-event or [2] post-event snapshot?\n[1|2]: "))
+
+	return x
+
+def get_device():
+	"""
+	Ask user which device (by name) we are snapshotting
+	"""
+
+	device = "<none>"
+
+	while ( device == "<none>" ) or ( device == "" ):
+		device = raw_input("\nDevice to snapshot: ")
+
+	return device
+
+def get_ip_name():
+	"""
+	Prompt user for IP or hostname
+	"""
+
+	ip_name = "<none>"
+
+	while (ip_name == "<none>" ) or ( ip_name == "" ):
+		ip_name = raw_input("\nIP or DNS name of device: " )
+
+	return ip_name
+
+def get_config_file():
+	"""
+	What jsnap config file should we use?
+	"""
+
+	full_file_name = "<none>"
+	cfg_file_ref = -1
+	i=0
+
+	file_names = list_folder()
+
+	for file in file_names:
+		print i, "    ", file
+		i += i
+
+	while (cfg_file_ref < 0 ) or ( cfg_file_ref > i ):
+		cfg_file_ref = int( raw_input("\nSNAP config file to use: " ) )
+
+	full_file_name = cfg_folder + "/" + file_names[cfg_file_ref]
+
+	return full_file_name
+
+def get_username():
+	"""
+	Ask user to supply a username
+	"""
+
+	username = "<none>"
+
+	while (username == "<none>" ) or ( username == "" ):
+		username = raw_input("\nUsername: " )
+
+	return username
+
+def get_password():
+	"""
+	Ask user for a valid password
+	Note the password will not be echoed
+	"""
+
+	password = "<none>"
+
+	while (password == "<none>" ) or ( password == "" ):
+		password = getpass.getpass("\nPassword: " )
+
+	return password
+
+def list_folder():
+   """
+   Dump the contents of a folder (directory)
+   Returns data as a list
+   """
+
+   proc = subprocess.Popen( ['ls', cfg_folder], stdout = subprocess.PIPE )
+   output = proc.stdout.read()
+   file_list = output.split( '\n' )[:-1]
+
+   return file_list
+
+
+
 
 
 operation = get_operation()
