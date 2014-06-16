@@ -17,7 +17,7 @@ import subprocess
 
 # Setup some defaults
 jsnap_cmd = "/usr/jawa/bin/jsnap"
-cfg_folder = "/usr/local/lib/jsnap"
+cfg_folder = "/usr/local/etc/jsnap"
 jsnap_args = "<none>"
 operation = "0"
 
@@ -171,7 +171,7 @@ def get_config_file():
 
 	for file in file_names:
 		print i, "    ", file
-		i += i
+		i = i + 1
 
 	while (cfg_file_ref < 0 ) or ( cfg_file_ref > i ):
 		cfg_file_ref = int( raw_input("\nSNAP config file to use: " ) )
