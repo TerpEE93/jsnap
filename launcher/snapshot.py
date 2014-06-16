@@ -6,8 +6,10 @@
 #    with the variables supplied by the user.  At least it will
 #    hide the password from full display :-)
 #
-#    I put this in /usr/local/bin on my system.  Feel free to
-#    put it wherever works best for you.
+#    I put this in /usr/local/bin on my system.  The script is
+#    set to read config files from /usr/local/etc/jsnap.  So
+#    put your config files there or modify cfg_folder to reflect
+#    the location you want to use for config files.
 #
 
 import getpass
