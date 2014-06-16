@@ -4,7 +4,9 @@
 #
 #    A simple script to prompt for variables and then run jsnap
 #    with the variables supplied by the user.  At least it will
-#    hide the password from full display :-)
+#    hide the password from full display.  Note that it does not
+#    (yet) support the "section" (-s) flag.  Maybe that will
+#    come later.
 #
 #    I put this in /usr/local/bin on my system.  The script is
 #    set to read config files from /usr/local/etc/jsnap.  So
@@ -20,6 +22,7 @@ jsnap_cmd = "/usr/jawa/bin/jsnap"
 cfg_folder = "/usr/local/etc/jsnap"
 jsnap_args = "<none>"
 operation = "0"
+
 
 def get_operation():
 	"""
@@ -43,6 +46,7 @@ def get_operation():
 
 	return op
 
+
 def get_snap_args():
 	"""
 	Interactively grab some real data from the user and build the
@@ -50,7 +54,6 @@ def get_snap_args():
 	the argument string.
 	"""
 
-	# Local variables
 	args = "<none>"
 	pre_post_num = 0
 	pre_post = [ "<none>", "pre", "post" ]
@@ -69,12 +72,10 @@ def get_snap_args():
 	username = get_username()
 	password = get_password()
 
-	#while (location == "<none>" ) or ( location == "" ):
-		#location = raw_input("Destination for results: " )
-
 	# Now lets concatenate the args into one string
 	args = str( "--snap " + device + "-" + pre_post[ pre_post_num ] + " -l " + username + " -p " + password + " -t " + ip_name + " " + cfg_file )
 	return args
+
 
 def get_check_args():
 	"""
@@ -93,6 +94,7 @@ def get_check_args():
 
 	args = str( " --check " + device + "-pre," + device + "-post " + " -t " + ip_name + " " + cfg_file )
 	return args
+
 
 def get_snapcheck_args():
 	"""
@@ -115,12 +117,9 @@ def get_snapcheck_args():
 	username = get_username()
 	password = get_password()
 
-	#while (location == "<none>" ) or ( location == "" ):
-		#location = raw_input("Destination for results: " )
-
-	# Now lets concatenate the args into one string
 	args = str( "--snapcheck " + device + " -l " + username + " -p " + password + " -t " + ip_name + " " + cfg_file )
 	return args
+
 
 def get_pre_post():
 	"""
@@ -130,9 +129,10 @@ def get_pre_post():
 	x = 0
 
 	while ( x != 1 ) and ( x != 2 ):
-		x = int( raw_input("\nIs this a [1] pre-event or [2] post-event snapshot?\n[1|2]: "))
+		x = int( raw_input("\nIs this a [1] pre-event or [2] post-event snapshot?\n[1-2]: "))
 
 	return x
+
 
 def get_device():
 	"""
@@ -146,6 +146,7 @@ def get_device():
 
 	return device
 
+
 def get_ip_name():
 	"""
 	Prompt user for IP or hostname
@@ -154,9 +155,10 @@ def get_ip_name():
 	ip_name = "<none>"
 
 	while (ip_name == "<none>" ) or ( ip_name == "" ):
-		ip_name = raw_input("\nIP or DNS name of device: " )
+		ip_name = raw_input("\nIP address or DNS name of device: " )
 
 	return ip_name
+
 
 def get_config_file():
 	"""
@@ -180,6 +182,7 @@ def get_config_file():
 
 	return full_file_name
 
+
 def get_username():
 	"""
 	Ask user to supply a username
@@ -191,6 +194,7 @@ def get_username():
 		username = raw_input("\nUsername: " )
 
 	return username
+
 
 def get_password():
 	"""
@@ -205,10 +209,12 @@ def get_password():
 
 	return password
 
+
 def list_folder():
    """
-   Dump the contents of a folder (directory)
-   Returns data as a list
+   Dump the contents of a folder (directory) and break the output
+   at the newline character.
+   Returns data as a list so we can iterate over the elements.
    """
 
    proc = subprocess.Popen( ['ls', cfg_folder], stdout = subprocess.PIPE )
@@ -218,9 +224,10 @@ def list_folder():
    return file_list
 
 
-
-
-
+#
+# That's all the helper functions.  Now it's time for the
+# body of the program
+#
 operation = get_operation()
 
 if operation == "1":
@@ -233,6 +240,8 @@ else:
 	print "That was weird.  Seems you didn't choose a valid operation."
 	exit( 1 )
 
-print "args are:", jsnap_args
+# Uncomment the next line to see what args will be passed along with
+# the jsnap command.
 
+#print "args are:", jsnap_args
 subprocess.call([jsnap_cmd, jsnap_args])
